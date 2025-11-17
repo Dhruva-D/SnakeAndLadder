@@ -1,0 +1,108 @@
+.snake-modal {
+  max-width: 900px;
+  background-color: black;
+  opacity: 1;
+}
+
+.close-button {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background-color: crimson;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  font-size: 1rem;
+  cursor: pointer;
+  border-radius: 4px;
+  z-index: 10;
+  transition: background-color 0.3s;
+}
+
+.close-button:hover {
+  background-color: #b71c1c;
+}
+
+.modal-body-snake {
+  padding: 40px;
+  color: white;
+}
+
+.snake-header {
+  color: #F6D636;
+  font-size: 1.8rem;
+  margin-bottom: 1rem;
+  font-weight: bold;
+}
+
+.snake-description {
+  font-size: 18px;
+  line-height: 1.6;
+  color: white;
+  display: block;
+  margin-bottom: 2rem;
+}
+
+.slideshow-container {
+  position: relative;
+  width: 100%;
+  margin-bottom: 1rem;
+}
+
+.snake-slide {
+  display: none;
+  width: 95%;
+  border-radius: 8px;
+}
+
+.snake-slide.active {
+  display: block;
+}
+
+.slide-controls {
+  text-align: center;
+  margin: 1rem 0;
+}
+
+.slide-btn {
+  background-color: rgba(246, 214, 54, 0.8);
+  color: black;
+  border: none;
+  padding: 10px 20px;
+  font-size: 1.5rem;
+  cursor: pointer;
+  margin: 0 10px;
+  border-radius: 4px;
+  transition: background-color 0.3s;
+}
+
+.slide-btn:hover {
+  background-color: #F6D636;
+}
+
+.thumbnails-container {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.thumbnail {
+  width: 100px;
+  height: 100px;
+  object-fit: cover;
+  cursor: pointer;
+  opacity: 0.6;
+  border: 2px solid transparent;
+  border-radius: 4px;
+  transition: all 0.3s;
+}
+
+.thumbnail:hover {
+  opacity: 0.9;
+}
+
+.thumbnail.active {
+  opacity: 1;
+  border-color: #F6D636;
+}

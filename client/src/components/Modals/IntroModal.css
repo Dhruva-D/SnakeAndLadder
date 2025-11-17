@@ -1,0 +1,103 @@
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  animation: fadeIn 0.3s ease-in;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.modal-content {
+  background-color: black;
+  opacity: 0.9;
+  border-radius: 8px;
+  max-width: 600px;
+  width: 90%;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+}
+
+.intro-modal .modal-header {
+  padding: 1.5rem;
+  border-bottom: 1px solid #333;
+}
+
+.modal-title {
+  color: #F6D636;
+  font-weight: bold;
+  font-size: 1.5rem;
+  margin: 0;
+}
+
+.modal-body {
+  padding: 2rem;
+  background: transparent;
+}
+
+.modal-body label {
+  color: #F6D636;
+  font-size: 1.1rem;
+  margin-bottom: 0.5rem;
+  display: block;
+}
+
+.modal-body .form-control {
+  background-color: rgba(31, 30, 30, 1);
+  color: wheat;
+  font-size: 19px;
+  border: 1px solid #444;
+  padding: 0.75rem;
+  width: 100%;
+  border-radius: 4px;
+}
+
+.modal-body .form-control:focus {
+  outline: none;
+  border-color: #F6D636;
+}
+
+.intro-text {
+  padding: 20px;
+  background-color: rgba(31, 30, 30, 1);
+  color: #F6D636;
+  border-radius: 4px;
+  line-height: 1.6;
+}
+
+.modal-footer {
+  padding: 1.5rem;
+  border-top: 1px solid #333;
+  display: flex;
+  justify-content: center;
+}
+
+.btn-submit {
+  background-color: #F6D636;
+  color: black;
+  font-size: 21px;
+  font-weight: bold;
+  padding: 0.75rem 2rem;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.btn-submit:hover {
+  background-color: #e0c230;
+}

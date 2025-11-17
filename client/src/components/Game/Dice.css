@@ -1,0 +1,33 @@
+.dice-container {
+  text-align: center;
+  margin: 10px;
+}
+
+.dice-image {
+  width: 80px;
+  height: 80px;
+  cursor: pointer;
+  transition: transform 0.2s, opacity 0.2s;
+}
+
+.dice-image:hover:not(.disabled) {
+  transform: scale(1.1);
+}
+
+.dice-image.disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.dice-container.active .dice-image {
+  animation: pulse 1s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+}

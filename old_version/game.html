@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Snake and Ladder Game</title>
+    <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+    <link rel="stylesheet" href="css/game.css">
+
+</head>
+
+<body>
+
+    <!--<h1>Snakes and ladder</h1>-->
+
+    <div id="diceCont">
+        <!--<p id="play1"></p>
+        <p id="play2"></p>-->
+        <p id="tog1"></p>
+        <p id="tog2"></p>
+        <img src="bg/dice.png" id="dice1">
+        <img src="bg/dice.png" id="dice2">
+    </div>
+
+    <!-- Intro Modal -->
+    <div class="w3-container" style="opacity: 1;">
+        <div id="myModal1" class="w3-modal w3-black w3-animate-opacity">
+            <div class="w3-modal-content" style="background-color: black;opacity: 0.8;">
+                <div class="modal-header">
+                    <h3 class="modal-title" id="myBoxLabel" style="color: #F6D636; font-weight: bold;">
+                        Please Enter Player Names to Start the Game
+                    </h3>
+                </div>
+                <div class="modal-body" style="background: transparent;">
+
+                    <label for="player1" style="color: #F6D636;">Player 1 : </label>
+                    <input type="player1" class="form-control" id="player1" placeholder="Enter player 1 name" 
+                    oninput="this.value = this.value.toUpperCase();" 
+                        style="background-color: rgba(31, 30, 30, 1); color: wheat;font-size: 19px;">
+                    <br>
+                    <label for="player2" style="color: #F6D636;">Player 2:</label>
+                    <input type="player2" class="form-control" id="player2" placeholder="Enter player 2 name" 
+                    oninput="this.value = this.value.toUpperCase();" 
+                        style="background-color: rgba(31, 30, 30, 1); color: wheat;font-size: 19px;">
+                    <br><br>
+                    <p id="introtext" style="padding: 20px; background-color: rgba(31, 30, 30, 1); color: #F6D636;">
+                        There are nearly 3,000 species of snakes distributed across the globe. These fascinating
+                        reptiles come in a wide array of shapes, sizes, and behaviors.
+                        <br><br>
+                        Let us learn about some of the major species of snakes through the Snakes and Ladders Game.
+                        <br><br>
+                        All the Best !!!
+                    </p>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn"  style="background-color: #F6D636; color: black; font-size: 21px; font-weight: bold;" onclick="getplayernames()">
+                        Submit
+                    </button>
+                    <!--<button type="button" class="btn" id="skip-button-intro" style="background-color: #F6D636; color: black; display: none; float: right; font-size: 21px;">
+                        Skip Speech
+                    </button>-->
+                </div>
+
+            </div> <!-- End modal content -->
+        </div> <!-- End modal -->
+    </div>
+
+    <!-- Popup Info Modal -->
+    <div class="w3-container">
+        <div id="myModal" class="w3-modal w3-black w3-animate-opacity">
+            <!--<span class="w3-text-red w3-xxlarge w3-hover-text-grey w3-container w3-display-topright"
+                onclick="closeModal('myModal')" style="cursor:pointer">×</span>-->
+            <div class="w3-modal-content">
+                <span class="w3-text w3-xlarge w3-hover-text-grey w3-container w3-display-topright"
+                onclick="closeModal('myModal')" style="cursor:pointer;background-color: crimson;color: white;">Close</span>
+                <div class="w3-content" style="background-color: black;padding: 40px; opacity: 1;">
+                    <h4 id="myheader"></h4>
+                    <label id="mylabel" style="font-size: 18px;"></label>
+                    <br>
+                    <img class="mySlides" id="mys1" src="" style="width:95%">
+                    <img class="mySlides" id="mys2" src="" style="width:95%">
+                    <img class="mySlides" id="mys3" src="" style="width:95%">
+                    <!--<img class="mySlides" id="mys3" src="" style="width:90%">-->
+
+                    <div class="w3-row w3-black w3-center">
+                        <span class="w3-display-left w3-btn" onclick="plusDivs(-1)">❮</span>
+                        <div class="w3-display-container">
+                            <p id="caption"></p>
+                        </div>
+                        <div class="w3-col s4">
+                            <img class="demo w3-opacity w3-hover-opacity-off" src="" style="width:100%" id="myd1"
+                                onclick="currentDiv(1)" alt="Snake">
+                        </div>
+                        <div class="w3-col s4">
+                            <img class="demo w3-opacity w3-hover-opacity-off" src="" style="width:100%" id="myd2"
+                                onclick="currentDiv(2)" alt="Snake">
+                        </div>
+                        <div class="w3-col s4">
+                            <img class="demo w3-opacity w3-hover-opacity-off" src="" style="width:100%" id="myd3"
+                                onclick="currentDiv(3)" alt="Snake">
+                        </div>
+                        <!--<div class="w3-col s4">
+                            <img class="demo w3-opacity w3-hover-opacity-off" src="" style="width:100%" id="myd3"
+                                onclick="currentDiv(3)" alt="Snake">
+                        </div>-->
+                        <!--<span class="w3-display-right w3-btn" onclick="plusDivs(1)">❯</span>
+                        <button type="button" class="btn" id="skip-button-pop" style="background-color: #F6D636; color: black; display: none; float: right; font-size: 21px;">
+                            Skip Speech
+                        </button>-->
+                    </div> <!-- End row -->
+                </div> <!-- End w3-content -->
+            </div> <!-- End modal content -->
+        </div> <!-- End modal -->
+    </div>
+
+    <!-- Questions Modal -->
+    <div class="w3-container">
+        <div id="myModal2" class="w3-modal w3-black w3-animate-opacity" style="float: right;">
+            <div class="w3-modal-content">
+                <div class="w3-content" style="background-color: black; float: right; padding: 40px; opacity: 0.9;">
+                    <span class="w3-text w3-xlarge w3-hover-text-grey w3-container w3-display-topright"
+                    onclick="closeModal('myModal2')" style="cursor:pointer;background-color: crimson;color: white;">Close</span>
+                    <h1>Quiz Time</h1>
+                    <h4>You have now reached tail of the snake. In order to climb a few levels up, you need to answer the following questions correctly. </h4>
+                    <h4>Correct answer will take you to one level up and wrong answer will bring you down by one level.</h4>
+                    <br><br>
+                    <div id="quiz" style="font-size: 21px;"></div>
+                    <br>
+                    <div id="result" class="result" style="font-size: 21px;"></div>
+                    <br>
+                    <button id="submit" class="button">Submit</button>
+                    <!--<button type="button" class="btn" id="skip-button-quest" style="background-color: #F6D636; color: black; display: none; float: right; font-size: 21px;">
+                        Skip Speech
+                    </button>-->
+                </div> <!-- End w3-content -->
+            </div> <!-- End modal content -->
+        </div> <!-- End modal -->
+    </div>
+
+    <div class="cont">
+
+        <div class="box" id="b100">
+
+        </div>
+        <div class="box" id="b99">
+
+        </div>
+        <div class="box" id="b98">
+
+        </div>
+        <div class="box" id="b97">
+
+        </div>
+        <div class="box" id="b96">
+
+        </div>
+        <div class="box" id="b95">
+
+        </div>
+        <div class="box" id="b94">
+
+        </div>
+        <div class="box" id="b93">
+
+        </div>
+        <div class="box" id="b92">
+
+        </div>
+        <div class="box" id="b91">
+
+        </div>
+        <div class="box" id="b81">
+
+        </div>
+        <div class="box" id="b82">
+
+        </div>
+        <div class="box" id="b83">
+
+        </div>
+        <div class="box" id="b84">
+
+        </div>
+        <div class="box" id="b85">
+
+        </div>
+        <div class="box" id="b86">
+
+        </div>
+        <div class="box" id="b87">
+
+        </div>
+        <div class="box" id="b88">
+
+        </div>
+        <div class="box" id="b89">
+
+        </div>
+        <div class="box" id="b90">
+
+        </div>
+        <div class="box" id="b80">
+
+        </div>
+        <div class="box" id="b79">
+
+        </div>
+        <div class="box" id="b78">
+
+        </div>
+        <div class="box" id="b77">
+
+        </div>
+        <div class="box" id="b76">
+
+        </div>
+        <div class="box" id="b75">
+
+        </div>
+        <div class="box" id="b74">
+
+        </div>
+        <div class="box" id="b73">
+
+        </div>
+        <div class="box" id="b72">
+
+        </div>
+        <div class="box" id="b71">
+
+        </div>
+        <div class="box" id="b61">
+
+        </div>
+        <div class="box" id="b62">
+
+        </div>
+        <div class="box" id="b63">
+
+        </div>
+        <div class="box" id="b64">
+
+        </div>
+        <div class="box" id="b65">
+
+        </div>
+        <div class="box" id="b66">
+
+        </div>
+        <div class="box" id="b67">
+
+        </div>
+        <div class="box" id="b68">
+
+        </div>
+        <div class="box" id="b69">
+
+        </div>
+        <div class="box" id="b70">
+
+        </div>
+        <div class="box" id="b60">
+
+        </div>
+        <div class="box" id="b59">
+
+        </div>
+        <div class="box" id="b58">
+
+        </div>
+        <div class="box" id="b57">
+
+        </div>
+        <div class="box" id="b56">
+
+        </div>
+        <div class="box" id="b55">
+
+        </div>
+        <div class="box" id="b54">
+
+        </div>
+        <div class="box" id="b53">
+
+        </div>
+        <div class="box" id="b52">
+
+        </div>
+        <div class="box" id="b51">
+
+        </div>
+        <div class="box" id="b41">
+
+        </div>
+        <div class="box" id="b42">
+
+        </div>
+        <div class="box" id="b43">
+
+        </div>
+        <div class="box" id="b44">
+
+        </div>
+        <div class="box" id="b45">
+
+        </div>
+        <div class="box" id="b46">
+
+        </div>
+        <div class="box" id="b47">
+
+        </div>
+        <div class="box" id="b48">
+
+        </div>
+        <div class="box" id="b49">
+
+        </div>
+        <div class="box" id="b50">
+
+        </div>
+        <div class="box" id="b40">
+
+        </div>
+        <div class="box" id="b39">
+
+        </div>
+        <div class="box" id="b38">
+
+        </div>
+        <div class="box" id="b37">
+
+        </div>
+        <div class="box" id="b36">
+
+        </div>
+        <div class="box" id="b35">
+
+        </div>
+        <div class="box" id="b34">
+
+        </div>
+        <div class="box" id="b33">
+
+        </div>
+        <div class="box" id="b32">
+
+        </div>
+        <div class="box" id="b31">
+
+        </div>
+        <div class="box" id="b21">
+
+        </div>
+        <div class="box" id="b22">
+
+        </div>
+        <div class="box" id="b23">
+
+        </div>
+        <div class="box" id="b24">
+
+        </div>
+        <div class="box" id="b25">
+
+        </div>
+        <div class="box" id="b26">
+
+        </div>
+        <div class="box" id="b27">
+
+        </div>
+        <div class="box" id="b28">
+
+        </div>
+        <div class="box" id="b29">
+
+        </div>
+        <div class="box" id="b30">
+
+        </div>
+        <div class="box" id="b20">
+
+        </div>
+        <div class="box" id="b19">
+
+        </div>
+        <div class="box" id="b18">
+
+        </div>
+        <div class="box" id="b17">
+
+        </div>
+        <div class="box" id="b16">
+
+        </div>
+        <div class="box" id="b15">
+
+        </div>
+        <div class="box" id="b14">
+
+        </div>
+        <div class="box" id="b13">
+
+        </div>
+        <div class="box" id="b12">
+
+        </div>
+        <div class="box" id="b11">
+
+        </div>
+        <div class="box" id="b01">
+
+            <p id="p1"></p>
+            <p id="p2"></p>
+
+        </div>
+        <div class="box" id="b02">
+
+        </div>
+        <div class="box" id="b03">
+
+        </div>
+        <div class="box" id="b04">
+
+        </div>
+        <div class="box" id="b05">
+
+        </div>
+        <div class="box" id="b06">
+
+        </div>
+        <div class="box" id="b07">
+
+        </div>
+        <div class="box" id="b08">
+
+        </div>
+        <div class="box" id="b09">
+
+        </div>
+        <div class="box" id="b10">
+
+        </div>
+    </div>
+
+    <img src="bg/board1.jpg" alt="" id="boardimg" style="opacity: 1;">
+
+</body>
+<script src="js/game.js"></script>
+
+</html>
