@@ -98,6 +98,11 @@ router.post('/login', async (req, res) => {
       return res.status(401).json({ error: 'Invalid email or password' });
     }
 
+    // Record Login History
+    await supabase
+      .from('login_history')
+      .insert([{ user_id: user.id, ip_address: req.ip }]);
+
     // Generate JWT token
     const token = jwt.sign(
       {

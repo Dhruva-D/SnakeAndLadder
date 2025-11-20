@@ -1,21 +1,24 @@
 .player {
-  width: 60px;
-  height: 60px;
+  width: 6%;
+  /* Responsive width relative to board container */
+  height: 6%;
+  /* Responsive height relative to board container */
+  min-width: 20px;
+  min-height: 20px;
+  max-width: 50px;
+  max-height: 50px;
   position: absolute;
-  border: 1px solid black;
-  border-radius: 100px;
-  transition: all linear 0.5s;
-  z-index: 2;
+  border-radius: 50%;
+  transition: all 0.5s cubic-bezier(0.25, 0.8, 0.25, 1);
+  z-index: 10;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5), inset 0 -4px 4px rgba(0, 0, 0, 0.2);
+  border: 2px solid white;
 }
 
 .player-1 {
-  background-color: yellow;
-  top: 0px;
-  left: -62px;
+  background: radial-gradient(circle at 30% 30%, #ffff00, #e6e600);
 }
 
 .player-2 {
-  background-color: #C71D1D;
-  top: -55px;
-  left: -62px;
+  background: radial-gradient(circle at 30% 30%, #ff3333, #cc0000);
 }
