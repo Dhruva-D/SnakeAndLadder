@@ -29,6 +29,7 @@ const GameContainer = () => {
   const [showIntroModal, setShowIntroModal] = useState(true);
   const [showSnakeModal, setShowSnakeModal] = useState(false);
   const [diceRolling, setDiceRolling] = useState(false);
+  const [diceValue, setDiceValue] = useState(1);
 
   // Analytics State
   const [startTime, setStartTime] = useState(null);
@@ -94,16 +95,17 @@ const GameContainer = () => {
     if (diceRolling || winner) return;
 
     setDiceRolling(true);
-    const diceValue = rollDice();
+    const rolledValue = rollDice();
 
     if (currentTurn === 1) {
       setMoveCount(prev => prev + 1);
     }
 
     setTimeout(() => {
-      makeMove(diceValue);
+      setDiceValue(rolledValue);
       setDiceRolling(false);
-    }, 500);
+      makeMove(rolledValue);
+    }, 1000);
   };
 
   const handleResetGame = () => {
@@ -174,6 +176,8 @@ const GameContainer = () => {
           <div className="dock-dice-section">
             <Dice
               player={1}
+              value={diceValue}
+              rolling={diceRolling && currentTurn === 1}
               isActive={currentTurn === 1 && !winner}
               onRoll={handleDiceRoll}
               disabled={currentTurn !== 1 || diceRolling || winner}
@@ -182,6 +186,8 @@ const GameContainer = () => {
                 However, keeping two dice for now to maintain logic, just styled compactly. */}
             <Dice
               player={2}
+              value={diceValue}
+              rolling={diceRolling && currentTurn === 2}
               isActive={currentTurn === 2 && !winner}
               onRoll={handleDiceRoll}
               disabled={currentTurn !== 2 || diceRolling || winner}
