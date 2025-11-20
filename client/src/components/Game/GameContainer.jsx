@@ -24,30 +24,18 @@ const GameContainer = () => {
   } = useGame();
 
   const { rollDice, makeMove, snakeInfo, setSnakeInfo } = useGameLogic();
-  
+
   const [showIntroModal, setShowIntroModal] = useState(true);
   const [showSnakeModal, setShowSnakeModal] = useState(false);
   const [diceRolling, setDiceRolling] = useState(false);
 
   useEffect(() => {
-    // Check license on component mount
-    const checkAuth = async () => {
-      const username = authService.getCurrentUser();
-      if (!username) {
-        alert('Please login first');
-        navigate('/');
-        return;
-      }
-
-      try {
-        await authService.checkLicense(username);
-      } catch (error) {
-        alert(error.message);
-        navigate('/');
-      }
-    };
-
-    checkAuth();
+    // Check if user is authenticated
+    const user = authService.getCurrentUser();
+    if (!user) {
+      alert('Please login first');
+      navigate('/');
+    }
   }, [navigate]);
 
   useEffect(() => {
@@ -88,19 +76,12 @@ const GameContainer = () => {
     }
   };
 
-  const handleLogout = () => {
-    if (window.confirm('Are you sure you want to logout?')) {
-      authService.logout();
-      navigate('/');
-    }
-  };
-
   const getCurrentPlayerName = () => {
     return currentTurn === 1 ? player1 : player2;
   };
 
   return (
-    <div className="game-container" style={{backgroundImage: 'url(/bg/gamebg.jpg)'}}>
+    <div className="game-container" style={{ backgroundImage: 'url(/bg/gamebg.jpg)' }}>
       <IntroModal
         isOpen={showIntroModal}
         onSubmit={handleStartGame}
@@ -120,11 +101,8 @@ const GameContainer = () => {
           <button className="btn btn-reset" onClick={handleResetGame}>
             🔄 Restart Game
           </button>
-          <button className="btn btn-logout" onClick={handleLogout}>
-            🚪 Logout
-          </button>
         </div>
-        
+
         {gameStarted && !winner && (
           <div className="turn-indicator">
             <h2>{getCurrentPlayerName()}'s Turn</h2>

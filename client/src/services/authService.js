@@ -1,59 +1,92 @@
-const API_URL = 'http://94.136.189.105:7000';
+const API_URL = 'http://localhost:5555/api/auth';
 
 class AuthService {
-  async httpRequest(method, data) {
+  async login(email, password) {
     try {
-      const response = await fetch(API_URL, {
+      const response = await fetch(`${API_URL}/login`, {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/x-www-form-urlencoded',
+          'Content-Type': 'application/json',
         },
-        body: data,
+        body: JSON.stringify({ email, password }),
       });
-      
-      const result = await response.text();
-      return result;
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Login failed');
+      }
+
+      // Store token and user data
+      if (data.token) {
+        localStorage.setItem('token', data.token);
+      }
+
+      if (data.user) {
+        localStorage.setItem('user', JSON.stringify(data.user));
+        localStorage.setItem('username', data.user.username);
+      }
+
+      return data;
     } catch (error) {
-      console.error('Network Error:', error);
+      console.error('Login Error:', error);
       throw error;
     }
   }
 
-  async login(username, password) {
-    const data = `*$|1|${username}|${password}`;
-    const result = await this.httpRequest('POST', data);
-    
-    if (result === 'P|DB|NACK') {
-      throw new Error('User does not exist or incorrect credentials');
-    } else if (result === '0|ACK' || result === '2|ACK') {
-      throw new Error('No license. Purchase License!');
-    } else if (result === 'P|DB|ACK') {
-      localStorage.setItem('username', username);
-      await this.httpRequest('POST', '*$|2|index.html');
-      return { success: true, username };
-    }
-    
-    throw new Error('Unknown error occurred');
-  }
+  async register(username, email, password) {
+    try {
+      const response = await fetch(`${API_URL}/signup`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ username, email, password }),
+      });
 
-  async checkLicense(username) {
-    const data = `*$|999|${username}`;
-    const result = await this.httpRequest('POST', data);
-    
-    if (result === '0|ACK') {
-      throw new Error('No license to run this software');
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Registration failed');
+      }
+
+      // Store token and user data
+      if (data.token) {
+        localStorage.setItem('token', data.token);
+      }
+
+      if (data.user) {
+        localStorage.setItem('user', JSON.stringify(data.user));
+        localStorage.setItem('username', data.user.username);
+      }
+
+      return data;
+    } catch (error) {
+      console.error('Registration Error:', error);
+      throw error;
     }
-    
-    await this.httpRequest('POST', '*$|2|game.html');
-    return { success: true };
   }
 
   logout() {
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
     localStorage.removeItem('username');
   }
 
   getCurrentUser() {
+    return JSON.parse(localStorage.getItem('user'));
+  }
+
+  getCurrentUsername() {
     return localStorage.getItem('username');
+  }
+
+  getToken() {
+    return localStorage.getItem('token');
+  }
+
+  isAuthenticated() {
+    return !!this.getToken();
   }
 }
 
