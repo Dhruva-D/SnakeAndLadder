@@ -2,8 +2,11 @@
   background: linear-gradient(135deg, #0d4d4d 0%, #0a3d3d 100%);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
   padding: 0;
-  position: sticky;
+  position: fixed;
   top: 0;
+  left: 0;
+  right: 0;
+  width: 100%;
   z-index: 1000;
   border-bottom: 3px solid #F6D636;
 }

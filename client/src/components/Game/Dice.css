@@ -1,8 +1,38 @@
 .dice-container {
   display: flex;
-  justify-content: center;
+  flex-direction: column;
   align-items: center;
+  justify-content: flex-end;
   perspective: 1000px;
+  position: relative;
+  min-height: 110px;
+}
+
+/* Turn Arrow Indicator */
+.turn-arrow {
+  font-size: 2.5rem;
+  color: #F6D636;
+  animation: arrowBounce 1s infinite ease-in-out;
+  margin-bottom: 8px;
+  text-shadow: 0 0 15px rgba(246, 214, 54, 0.9);
+  font-weight: bold;
+  width: 40px;
+  text-align: center;
+  background: rgba(246, 214, 54, 0.15);
+  border-radius: 8px;
+  padding: 0px 8px;
+}
+
+@keyframes arrowBounce {
+
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-10px);
+  }
 }
 
 .dice-face {
@@ -19,6 +49,18 @@
   border: 2px solid #e0e0e0;
 }
 
+/* Yellow dice for player 1 */
+.dice-face[data-color="yellow"] {
+  background: radial-gradient(circle at 30% 30%, #ffff00, #e6e600);
+  border-color: #d4d400;
+}
+
+/* Red dice for player 2 */
+.dice-face[data-color="red"] {
+  background: radial-gradient(circle at 30% 30%, #ff3333, #cc0000);
+  border-color: #b30000;
+}
+
 .dice-face:hover:not(.disabled) {
   transform: translateY(-2px);
   box-shadow:
@@ -30,7 +72,6 @@
 .dice-face.disabled {
   opacity: 0.6;
   cursor: not-allowed;
-  background-color: #f0f0f0;
   box-shadow: none;
 }
 
@@ -76,7 +117,6 @@
   left: 50%;
   transform: translate(-50%, -50%);
   background-color: #d63031;
-  /* Red center dot for 1, 3, 5 */
 }
 
 .top-left {

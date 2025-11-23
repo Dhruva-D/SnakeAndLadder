@@ -29,7 +29,8 @@ const GameContainer = () => {
   const [showIntroModal, setShowIntroModal] = useState(true);
   const [showSnakeModal, setShowSnakeModal] = useState(false);
   const [diceRolling, setDiceRolling] = useState(false);
-  const [diceValue, setDiceValue] = useState(1);
+  const [p1DiceValue, setP1DiceValue] = useState(1);
+  const [p2DiceValue, setP2DiceValue] = useState(1);
 
   // Analytics State
   const [startTime, setStartTime] = useState(null);
@@ -53,10 +54,6 @@ const GameContainer = () => {
     }
   }, [snakeInfo]);
 
-  // Track Ladders (Simple heuristic: if position increased by more than dice roll (6))
-  // Note: This is a simplification. Ideally useGameLogic would tell us if a ladder was climbed.
-  // For now, we'll just track snakes accurately via the modal trigger.
-
   useEffect(() => {
     if (winner) {
       const endTime = Date.now();
@@ -66,7 +63,7 @@ const GameContainer = () => {
       const saveGame = async () => {
         await gameService.recordGame({
           opponent_name: winner === player1 ? player2 : player1,
-          result: winner === player1 ? 'WIN' : 'LOSS', // Assuming Player 1 is the logged-in user
+          result: winner === player1 ? 'WIN' : 'LOSS',
           moves: moveCount,
           duration_seconds: durationSeconds,
           snakes_hit: snakesHit,
@@ -102,7 +99,12 @@ const GameContainer = () => {
     }
 
     setTimeout(() => {
-      setDiceValue(rolledValue);
+      // Set the appropriate player's dice value
+      if (currentTurn === 1) {
+        setP1DiceValue(rolledValue);
+      } else {
+        setP2DiceValue(rolledValue);
+      }
       setDiceRolling(false);
       makeMove(rolledValue);
     }, 1000);
@@ -113,13 +115,10 @@ const GameContainer = () => {
       resetGame();
       setShowIntroModal(true);
       setStartTime(null);
+      setP1DiceValue(1);
+      setP2DiceValue(1);
     }
   };
-
-  const getCurrentPlayerName = () => {
-    return currentTurn === 1 ? player1 : player2;
-  };
-
 
   return (
     <div className="game-container" style={{ backgroundImage: 'url(/bg/gamebg.jpg)' }}>
@@ -137,23 +136,19 @@ const GameContainer = () => {
         }}
       />
 
-      {/* Top Bar */}
-      <div className="game-header">
-        <div className="header-content">
-          <div className="turn-indicator">
-            {gameStarted && !winner ? (
-              <h2>{getCurrentPlayerName()}'s Turn</h2>
-            ) : winner ? (
-              <h2 className="winner-text">🎉 {winner} Wins! 🎉</h2>
-            ) : (
-              <h2>Snake & Ladder</h2>
-            )}
-          </div>
-          <button className="btn btn-reset" onClick={handleResetGame}>
-            🔄
-          </button>
+      {/* Floating Restart Button */}
+      {gameStarted && (
+        <button className="floating-restart-btn" onClick={handleResetGame}>
+          🔄 Restart
+        </button>
+      )}
+
+      {/* Winner Message */}
+      {winner && (
+        <div className="winner-banner">
+          🎉 {winner} Wins! 🎉
         </div>
-      </div>
+      )}
 
       {/* Main Board Area */}
       <div className="game-board-section">
@@ -176,21 +171,23 @@ const GameContainer = () => {
           <div className="dock-dice-section">
             <Dice
               player={1}
-              value={diceValue}
+              value={p1DiceValue}
               rolling={diceRolling && currentTurn === 1}
               isActive={currentTurn === 1 && !winner}
               onRoll={handleDiceRoll}
               disabled={currentTurn !== 1 || diceRolling || winner}
+              showArrow={currentTurn === 1 && !winner}
+              color="yellow"
             />
-            {/* Only show active player's dice or both if needed, but for dock design usually one central dice area is better. 
-                However, keeping two dice for now to maintain logic, just styled compactly. */}
             <Dice
               player={2}
-              value={diceValue}
+              value={p2DiceValue}
               rolling={diceRolling && currentTurn === 2}
               isActive={currentTurn === 2 && !winner}
               onRoll={handleDiceRoll}
               disabled={currentTurn !== 2 || diceRolling || winner}
+              showArrow={currentTurn === 2 && !winner}
+              color="red"
             />
           </div>
 

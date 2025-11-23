@@ -1,7 +1,7 @@
 import React from 'react';
 import './Dice.css';
 
-const Dice = ({ player, value = 1, rolling, isActive, onRoll, disabled }) => {
+const Dice = ({ player, value = 1, rolling, isActive, onRoll, disabled, showArrow, color = 'white' }) => {
   // Helper to render dots based on value
   const renderDots = () => {
     const dots = [];
@@ -47,8 +47,15 @@ const Dice = ({ player, value = 1, rolling, isActive, onRoll, disabled }) => {
 
   return (
     <div className={`dice-container ${isActive ? 'active' : ''}`}>
+      {/* Animated Arrow Indicator */}
+      {showArrow && (
+        <div className="turn-arrow">
+          ⬇
+        </div>
+      )}
       <div
         className={`dice-face ${rolling ? 'rolling' : ''} ${disabled ? 'disabled' : ''}`}
+        data-color={color}
         onClick={!disabled ? onRoll : null}
       >
         {renderDots()}

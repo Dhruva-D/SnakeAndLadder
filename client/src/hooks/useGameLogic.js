@@ -37,7 +37,7 @@ export const useGameLogic = () => {
     const snakePos = snakesData[position];
     if (snakePos) {
       const playerName = playerNum === 1 ? player1 : player2;
-      
+
       // Check bite tracking for positions 98 and 95
       if (position === 98) {
         if (playerNum === 1 && (bite1_98 === 0 || bite1_98 === 1)) {
@@ -58,7 +58,7 @@ export const useGameLogic = () => {
       }
 
       playCustomSound(snakePos.sound);
-      
+
       return {
         newPosition: snakePos.newPosition,
         info: {
@@ -89,18 +89,23 @@ export const useGameLogic = () => {
 
     // Don't move if it exceeds 100
     if (newPosition > 100) {
+      switchTurn();
       return;
     }
 
-    // Check for snake
+    // Check for snake first
     const snakeResult = checkSnake(newPosition, playerNum);
     if (snakeResult) {
       newPosition = snakeResult.newPosition;
       setSnakeInfo(snakeResult.info);
       playSound('levelDown');
+      // Update position and end move - no ladder check after snake
+      updatePlayerPosition(playerNum, newPosition);
+      switchTurn();
+      return;
     }
 
-    // Check for ladder
+    // Check for ladder only if no snake
     const ladderEnd = checkLadder(newPosition);
     if (ladderEnd) {
       newPosition = ladderEnd;
@@ -115,7 +120,7 @@ export const useGameLogic = () => {
     } else {
       switchTurn();
     }
-  }, [currentTurn, p1sum, p2sum, checkSnake, checkLadder, updatePlayerPosition, switchTurn, playSound]);
+  }, [currentTurn, p1sum, p2sum, checkSnake, checkLadder, updatePlayerPosition, switchTurn, playSound, setSnakeInfo]);
 
   return {
     rollDice,
