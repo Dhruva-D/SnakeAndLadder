@@ -2,22 +2,6 @@
 
 An educational and interactive **Snakes and Ladders** game built with React and Node.js. Learn about different snake species through an engaging gaming experience!
 
-![Snake and Ladder Game](./client/public/bg/gamebg.jpg)
-
-## 📋 Table of Contents
-
-- [Features](#features)
-- [Tech Stack](#tech-stack)
-- [Prerequisites](#prerequisites)
-- [Local Setup](#local-setup)
-- [Database Setup](#database-setup)
-- [Running the Application](#running-the-application)
-- [Project Structure](#project-structure)
-- [Gameplay](#gameplay)
-- [Admin Dashboard](#admin-dashboard)
-- [API Documentation](#api-documentation)
-- [Troubleshooting](#troubleshooting)
-
 ## ✨ Features
 
 ### 🎮 Core Game Features
@@ -63,214 +47,60 @@ An educational and interactive **Snakes and Ladders** game built with React and 
 Before you begin, ensure you have the following installed:
 
 - **Node.js** (v16 or higher) - [Download](https://nodejs.org/)
-- **npm** (comes with Node.js) or **yarn**
+- **npm** (comes with Node.js)
 - **Git** - [Download](https://git-scm.com/)
-- **Supabase Account** - [Sign up](https://supabase.com/)
 
 ## 🚀 Local Setup
 
 ### 1. Clone the Repository
 
 ```bash
-git clone https://github.com/yourusername/SnakeAndLadder.git
+git clone <repository-url>
 cd SnakeAndLadder
 ```
 
-### 2. Backend Setup
+### 2. Install Dependencies
 
-#### Install Dependencies
+#### Backend
 ```bash
 cd server
 npm install
 ```
 
-#### Configure Environment Variables
-Create a `.env` file in the `server` directory:
-
-```bash
-cp .env.example .env
-```
-
-Edit `.env` with your credentials:
-
-```env
-# Server Configuration
-PORT=5555
-
-# Supabase Configuration
-SUPABASE_URL=https://your-project.supabase.co
-SUPABASE_ANON_KEY=your-anon-key-here
-SUPABASE_SERVICE_ROLE_KEY=your-service-role-key-here
-
-# JWT Secret (change this in production!)
-JWT_SECRET=your-super-secret-jwt-key-here
-```
-
-**Where to find Supabase credentials:**
-1. Go to [Supabase Dashboard](https://app.supabase.com/)
-2. Select your project
-3. Go to Settings → API
-4. Copy the `URL` and `anon public` key
-5. For service role key, click "Reveal" next to `service_role`
-
-### 3. Frontend Setup
-
-#### Install Dependencies
+#### Frontend
 ```bash
 cd ../client
 npm install
 ```
 
-#### Configure API URL (Optional)
-If your backend runs on a different port, update the API URL in:
-- `client/src/services/authService.js`
-- `client/src/services/adminService.js`
-- `client/src/services/gameService.js`
+### 3. Environment Configuration
 
-Default is: `http://localhost:5555`
+The `.env` file is already provided in the `server` folder with all necessary configurations.
 
-## 🗄️ Database Setup
-
-### 1. Create Supabase Project
-1. Go to [Supabase Dashboard](https://app.supabase.com/)
-2. Click "New Project"
-3. Fill in project details
-4. Wait for database to initialize
-
-### 2. Run SQL Scripts
-
-Execute these SQL scripts in Supabase SQL Editor (in order):
-
-#### Script 1: Create Users Table
-```sql
--- database/schema.sql
-CREATE TABLE IF NOT EXISTS users (
-  id SERIAL PRIMARY KEY,
-  username VARCHAR(50) UNIQUE NOT NULL,
-  email VARCHAR(255) UNIQUE NOT NULL,
-  password_hash VARCHAR(255) NOT NULL,
-  region VARCHAR(100),
-  role VARCHAR(20) DEFAULT 'user',
-  created_at TIMESTAMP DEFAULT NOW(),
-  updated_at TIMESTAMP DEFAULT NOW()
-);
-
-CREATE INDEX IF NOT EXISTS idx_users_email ON users(email);
-CREATE INDEX IF NOT EXISTS idx_users_username ON users(username);
-```
-
-#### Script 2: Create Game History Table
-```sql
--- database/update_schema_analytics.sql (Part 1)
-CREATE TABLE IF NOT EXISTS game_history (
-  id SERIAL PRIMARY KEY,
-  player_id INTEGER REFERENCES users(id),
-  opponent_name VARCHAR(50),
-  result VARCHAR(10),
-  moves INTEGER,
-  duration_seconds INTEGER,
-  snakes_hit INTEGER DEFAULT 0,
-  ladders_climbed INTEGER DEFAULT 0,
-  created_at TIMESTAMP DEFAULT NOW()
-);
-
-CREATE INDEX IF NOT EXISTS idx_game_history_player ON game_history(player_id);
-CREATE INDEX IF NOT EXISTS idx_game_history_created ON game_history(created_at);
-```
-
-#### Script 3: Create Login History Table (Optional)
-```sql
--- database/update_schema_analytics.sql (Part 2)
-CREATE TABLE IF NOT EXISTS login_history (
-  id SERIAL PRIMARY KEY,
-  user_id INTEGER REFERENCES users(id),
-  login_time TIMESTAMP DEFAULT NOW(),
-  ip_address VARCHAR(45)
-);
-
-CREATE INDEX IF NOT EXISTS idx_login_history_user ON login_history(user_id);
-CREATE INDEX IF NOT EXISTS idx_login_history_time ON login_history(login_time);
-```
-
-#### Script 4: Create Analytics Views
-```sql
--- database/update_schema_analytics.sql (Part 3)
-CREATE OR REPLACE VIEW analytics_region AS
-SELECT 
-  region,
-  COUNT(DISTINCT u.id) as player_count,
-  COUNT(gh.id) as games_played,
-  ROUND(AVG(gh.duration_seconds), 1) as avg_duration
-FROM users u
-LEFT JOIN game_history gh ON u.id = gh.player_id
-GROUP BY region;
-
-CREATE OR REPLACE VIEW analytics_movement AS
-SELECT 
-  SUM(snakes_hit) as total_snakes_hit,
-  SUM(ladders_climbed) as total_ladders_climbed,
-  ROUND(AVG(snakes_hit), 2) as avg_snakes_per_game,
-  ROUND(AVG(ladders_climbed), 2) as avg_ladders_per_game,
-  ROUND(AVG(moves), 1) as avg_moves_to_win
-FROM game_history
-WHERE result = 'WIN';
-```
-
-### 3. Create Admin User (Optional)
-
-```sql
--- Create an admin user (password will be hashed by the app)
--- You'll need to register through the app first, then update the role
-
-INSERT INTO users (username, email, password_hash, role, region)
-VALUES (
-  'admin',
-  'admin@example.com',
-  'temp-password-hash',  -- Register through app first
-  'admin',
-  'Admin Region'
-);
-
--- Or update existing user to admin:
-UPDATE users SET role = 'admin' WHERE username = 'your-username';
-```
+**Note:** The `.env` file contains sensitive credentials. Keep it secure and do not commit it to version control.
 
 ## ▶️ Running the Application
 
-### Development Mode
-
 Open **two terminal windows**:
 
-#### Terminal 1 - Backend Server
+### Terminal 1 - Backend Server
 ```bash
 cd server
 npm run dev
 ```
-Server will start at `http://localhost:5555`
+✅ Server will start at `http://localhost:5555`
 
-#### Terminal 2 - Frontend
+### Terminal 2 - Frontend
 ```bash
 cd client
 npm start
 ```
-Client will start at `http://localhost:3000`
+✅ Client will start at `http://localhost:3000`
 
-### Production Build
-
-#### Build Frontend
-```bash
-cd client
-npm run build
+### Success!
+Once both servers are running, open your browser and navigate to:
 ```
-
-#### Serve Production Build
-```bash
-# Install serve globally
-npm install -g serve
-
-# Serve the build folder
-cd build
-serve -s . -p 3000
+http://localhost:3000
 ```
 
 ## 📁 Project Structure
@@ -296,205 +126,259 @@ SnakeAndLadder/
 │       ├── services/         # API services
 │       └── App.js            # Main app
 │
-├── server/                    # Node.js backend
-│   ├── config/               # Configuration
-│   │   └── supabase.js       # DB connection
-│   ├── database/             # SQL scripts
-│   │   ├── schema.sql
-│   │   └── update_schema_*.sql
-│   ├── routes/               # API routes
-│   │   ├── admin.js          # Admin endpoints
-│   │   ├── auth.js           # Authentication
-│   │   ├── game.js           # Game data
-│   │   └── profile.js        # User profile
-│   ├── .env.example          # Environment template
-│   └── index.js              # Server entry
-│
-└── README.md                  # This file
+└── server/                    # Node.js backend
+    ├── config/               # Configuration
+    ├── database/             # SQL scripts
+    ├── routes/               # API routes
+    ├── .env                  # Environment variables
+    └── index.js              # Server entry
 ```
 
-## 🎲 Gameplay
+## 🎲 How to Play
 
-### How to Play
+### Getting Started
 
 1. **Register/Login**
-   - Create an account or login
+   - Open `http://localhost:3000`
+   - Create a new account or login
    - You'll be redirected to the game page
 
-2. **Start Game**
+2. **Start a Game**
    - Click "Play Game"
-   - Your name is auto-filled as Player 1
-   - Enter opponent name (Player 2)
+   - Your username is auto-filled as **Player 1**
+   - Enter opponent name as **Player 2**
    - Click "Start Game"
 
 3. **Game Rules**
    - Players take turns rolling the dice
    - Move your token based on dice value
-   - **Ladders**: Climb up to advance faster
-   - **Snakes**: Slide down (learn about snake species!)
-   - First to reach square 100 wins
+   - **Ladders** 🪜: Climb up to advance faster
+   - **Snakes** 🐍: Slide down (learn about snake species!)
+   - First player to reach square **100** wins!
 
-4. **Game Features**
-   - Animated dice rolls
-   - Sound effects for moves, snakes, and ladders
-   - Educational popups when hitting snakes
-   - Real-time position tracking
+### Key Features During Gameplay
+
+- **Animated Dice Rolls** - Watch the dice animate before showing value
+- **Sound Effects** - Immersive audio for moves, snakes, and ladders
+- **Educational Popups** - Learn about different snake species when you land on them
+- **Real-time Tracking** - See your position and moves in real-time
+- **Restart Option** - Reset the game anytime with the restart button
 
 ### Important Notes
 
-- **Player 1 is always YOU** (the logged-in user)
-- Only **your statistics** are saved to the database
-- Game must **complete normally** (reach 100) for stats to save
-- If you **quit or refresh** mid-game, stats are NOT saved
+✅ **Player 1 is always YOU** (the logged-in user)  
+✅ Only **your statistics** are saved to the database  
+✅ Game must **complete normally** (reach square 100) for stats to save  
+❌ If you **quit or refresh** mid-game, stats are NOT saved  
 
 ## 📊 Admin Dashboard
 
-Access admin dashboard at `/admin` (admin role required)
+Access admin dashboard at: `http://localhost:3000/admin` (requires admin role)
 
-### Features:
+### Available Analytics:
 - **Total Users** - Count of registered users
-- **Games Played** - Total completed games
-- **Active Regions** - Geographic distribution
-- **Movement Patterns** - Snakes hit and ladders climbed
-- **Login Trends** - Last 7 days activity
+- **Games Played** - Total completed games across all users
+- **Active Regions** - Geographic distribution of users
+- **Movement Patterns** - Total snakes hit and ladders climbed
+- **Login Trends** - User activity over the last 7 days
 - **Average Moves to Win** - Performance metrics
 
-### How to Access:
-1. Login with admin account
-2. Navigate to `/admin`
-3. View comprehensive analytics
+## 👤 User Profile
 
-## 🔌 API Documentation
+Access your profile at: `http://localhost:3000/profile`
 
-### Authentication Endpoints
+### View Your Stats:
+- Total games played
+- Wins and losses
+- Win rate percentage
+- Recent game history
+- Personal achievements
 
-#### POST `/api/auth/signup`
-Register a new user
-```json
-{
-  "username": "john_doe",
-  "email": "john@example.com",
-  "password": "securePassword123",
-  "region": "North America"
-}
-```
+## 🎨 Game Features
 
-#### POST `/api/auth/login`
-User login
-```json
-{
-  "email": "john@example.com",
-  "password": "securePassword123"
-}
-```
+### What Makes This Game Special
 
-### Game Endpoints
+1. **Educational Content** 🎓
+   - Learn about 3,000+ snake species
+   - Fascinating facts about snake behavior
+   - Beautiful snake images and information
 
-#### POST `/api/game/record` (Protected)
-Save game results
-```json
-{
-  "opponent_name": "PLAYER2",
-  "result": "WIN",
-  "moves": 45,
-  "duration_seconds": 320,
-  "snakes_hit": 3,
-  "ladders_climbed": 5
-}
-```
+2. **Smart Analytics** 📈
+   - Track every move you make
+   - See how many snakes you hit
+   - Count ladders you climbed
+   - Monitor game duration
 
-### Admin Endpoints
+3. **Beautiful UI** 🎨
+   - Dark theme with yellow accents
+   - Smooth animations
+   - Responsive design
+   - Sound effects and music
 
-#### GET `/api/admin/analytics` (Admin only)
-Get comprehensive analytics
-- Returns: overview, regions, movement patterns, login trends
-
-### Profile Endpoints
-
-#### GET `/api/profile/:userId` (Protected)
-Get user profile and game history
+4. **Data Integrity** 🔒
+   - Only saves completed games
+   - Prevents data loss on refresh
+   - Secure authentication
+   - Protected routes
 
 ## 🐛 Troubleshooting
 
-### Common Issues
+### Common Issues and Solutions
 
-#### 1. Backend won't start
+#### Backend won't start
 ```bash
-# Check if port 5555 is in use
+# Issue: Port 5555 already in use
+# Solution: Kill the existing process or change port
+
+# Windows - Find process
 netstat -ano | findstr :5555
 
-# Kill the process (Windows)
+# Windows - Kill process
 taskkill /PID <process_id> /F
 
-# Or change port in .env
+# Or change port in .env file
 PORT=5556
 ```
 
-#### 2. Database connection errors
-- Verify Supabase credentials in `.env`
-- Check if your IP is allowed in Supabase
-- Ensure SQL tables are created
+#### Frontend won't start
+```bash
+# Issue: Port 3000 already in use
+# Solution:
+# Press 'Y' when prompted to run on different port
+# Or kill the existing process
 
-#### 3. Frontend can't connect to backend
-- Check if backend is running
-- Verify API URL in service files
-- Check CORS settings in `server/index.js`
-
-#### 4. Login not working
-- Clear browser localStorage
-- Check JWT_SECRET is set in `.env`
-- Verify user exists in database
-
-#### 5. Stats not saving
-- Ensure game completes (reaches 100)
-- Check if user is authenticated
-- Verify game_history table exists
-
-### Debug Mode
-
-Enable detailed logging:
-
-**Backend:**
-```javascript
-// server/index.js
-console.log('Request:', req.method, req.path);
+# Windows
+netstat -ano | findstr :3000
+taskkill /PID <process_id> /F
 ```
 
-**Frontend:**
-```javascript
-// Check localStorage
-console.log(localStorage.getItem('token'));
-console.log(localStorage.getItem('user'));
+#### Cannot connect to backend
+- ✅ Ensure backend server is running on port 5555
+- ✅ Check console for any backend errors
+- ✅ Verify `.env` file exists in server folder
+
+#### Login not working
+```bash
+# Clear browser data
+# In browser console:
+localStorage.clear()
+# Then refresh the page
 ```
 
-## 🤝 Contributing
+#### Stats not saving
+- ✅ Make sure to **complete the game** (reach square 100)
+- ✅ Check if you're logged in
+- ✅ Don't refresh during the game
 
-Contributions are welcome! Please follow these steps:
+### Need Help?
 
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
+If you encounter any issues:
+1. Check terminal for error messages
+2. Clear browser cache and localStorage
+3. Restart both servers
+4. Check if `.env` file is present in server folder
 
-## 📝 License
+## 🔧 Available Scripts
 
-This project is licensed under the MIT License.
+### Backend (server/)
+```bash
+npm start        # Start production server
+npm run dev      # Start development server with auto-reload
+```
 
-## 👥 Authors
+### Frontend (client/)
+```bash
+npm start        # Start development server
+npm run build    # Build for production
+npm test         # Run tests
+```
 
-- **Dhruva D** - Initial development
+## 📸 Screenshots
 
-## 🙏 Acknowledgments
+### Game Board
+- **100-square board** with numbered tiles
+- **Player tokens** moving in real-time
+- **Dice animation** with sound effects
+- **Educational popups** for snake encounters
 
-- Snake species data from educational sources
-- Sound effects from public domain
-- Game inspiration from classic Snakes and Ladders
+### Admin Dashboard
+- **Analytics cards** with key metrics
+- **Regional distribution** bar charts
+- **Movement patterns** statistics
+- **Login trends** graph
 
-## 📧 Support
+### User Profile
+- **Personal statistics** overview
+- **Game history** table
+- **Win/loss record** tracking
 
-For support, email: support@example.com or open an issue on GitHub.
+## 🎯 Quick Reference
+
+### Default URLs
+- **Frontend**: http://localhost:3000
+- **Backend**: http://localhost:5555
+- **Admin Dashboard**: http://localhost:3000/admin
+- **User Profile**: http://localhost:3000/profile
+
+### Default Credentials
+Create your account through the signup page - no default credentials needed.
+
+### Admin Access
+To make a user admin, update the database directly or contact the database administrator.
+
+## ⚠️ Important Notes
+
+1. **Database** - Already configured in `.env` file
+2. **Tables** - All database tables are already set up
+3. **Authentication** - Uses JWT tokens (expires after session)
+4. **Stats** - Only tracks logged-in user's data
+5. **Security** - Keep `.env` file secure and never commit to Git
+
+## 📝 Development Notes
+
+### Key Directories
+- **client/src/components/** - React components
+- **client/src/services/** - API service calls
+- **server/routes/** - Backend API endpoints
+- **server/config/** - Database configuration
+
+### Main Files
+- **client/src/App.js** - Main React app with routing
+- **server/index.js** - Express server entry point
+- **server/.env** - Environment configuration (keep secure!)
+
+## 🚀 Deployment
+
+For production deployment:
+
+1. **Build Frontend**
+```bash
+cd client
+npm run build
+```
+
+2. **Serve Static Files**
+```bash
+# Use build folder with your hosting service
+# Or serve with: serve -s build
+```
+
+3. **Deploy Backend**
+```bash
+# Use server folder with Node.js hosting
+# Ensure .env is configured on hosting platform
+```
 
 ---
 
-**Enjoy the game and learn about snakes! 🐍🎮**
+## 🎮 **Ready to Play!**
+
+1. Start both servers
+2. Open http://localhost:3000
+3. Sign up or login
+4. Click "Play Game"
+5. Have fun learning about snakes! 🐍🎲
+
+---
+
+**Developed by Dhruva D** | Built with ❤️ using React & Node.js
