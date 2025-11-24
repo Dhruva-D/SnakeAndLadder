@@ -4,7 +4,7 @@ import { useAudio } from './useAudio';
 import snakesData from '../data/snakesData.json';
 import laddersData from '../data/laddersData.json';
 
-export const useGameLogic = () => {
+export const useGameLogic = (onLadderClimb) => {
   const {
     p1sum,
     p2sum,
@@ -77,10 +77,14 @@ export const useGameLogic = () => {
     if (ladderEnd) {
       playSound('ladderUp');
       playSound('levelUp');
+      // Notify parent about ladder climb
+      if (onLadderClimb) {
+        onLadderClimb();
+      }
       return ladderEnd;
     }
     return null;
-  }, [playSound]);
+  }, [playSound, onLadderClimb]);
 
   const makeMove = useCallback((diceValue) => {
     const playerNum = currentTurn;

@@ -23,60 +23,84 @@ const authenticateAdmin = (req, res, next) => {
 // Get All Analytics
 router.get('/analytics', authenticateAdmin, async (req, res) => {
   try {
-    // 1. Overview Stats
-    const { count: totalUsers } = await supabase.from('users').select('*', { count: 'exact', head: true });
-    const { count: totalGames } = await supabase.from('game_history').select('*', { count: 'exact', head: true });
+    // 1. Overview Stats - Total Users
+    const { count: totalUsers, error: usersError } = await supabase
+      .from('users')
+      .select('*', { count: 'exact', head: true });
 
-    // 2. Regional Stats (Using View if available, else manual aggregation)
-    // Since we can't easily query views with Supabase JS client in the same way, we'll fetch raw data for some
-    // But for complex aggregations, we might need RPC or raw SQL. 
-    // For simplicity in this setup, we will fetch data and aggregate in JS for small datasets, 
-    // or assume the user has created the views and we can select from them if Supabase exposes them as tables.
+    if (usersError) throw usersError;
 
-    // Fetching from Views (assuming they are exposed)
-    const { data: regionalStats } = await supabase.from('users').select('region');
-    // Aggregate regions manually to be safe
+    // 2. Overview Stats - Total Games
+    const { count: totalGames, error: gamesError } = await supabase
+      .from('game_history')
+      .select('*', { count: 'exact', head: true });
+
+    if (gamesError) throw gamesError;
+
+    // 3. Regional Stats - Fetch all users and aggregate by region
+    const { data: regionalStats, error: regionError } = await supabase
+      .from('users')
+      .select('region');
+
+    if (regionError) throw regionError;
+
+    // Aggregate regions manually
     const regions = regionalStats.reduce((acc, curr) => {
       const region = curr.region || 'Unknown';
       acc[region] = (acc[region] || 0) + 1;
       return acc;
     }, {});
 
-    // 3. Movement Stats
-    const { data: movementData } = await supabase
+    // 4. Movement Stats - Fetch all game data
+    const { data: movementData, error: movementError } = await supabase
       .from('game_history')
       .select('snakes_hit, ladders_climbed, moves, result');
 
+    if (movementError) throw movementError;
+
+    // Calculate movement statistics
     const movement = {
-      total_snakes: movementData.reduce((sum, g) => sum + (g.snakes_hit || 0), 0),
-      total_ladders: movementData.reduce((sum, g) => sum + (g.ladders_climbed || 0), 0),
+      total_snakes: 0,
+      total_ladders: 0,
       avg_moves_win: 0
     };
 
-    const wins = movementData.filter(g => g.result === 'WIN');
-    if (wins.length > 0) {
-      movement.avg_moves_win = Math.round(wins.reduce((sum, g) => sum + g.moves, 0) / wins.length);
+    if (movementData && movementData.length > 0) {
+      movement.total_snakes = movementData.reduce((sum, g) => sum + (g.snakes_hit || 0), 0);
+      movement.total_ladders = movementData.reduce((sum, g) => sum + (g.ladders_climbed || 0), 0);
+
+      // Calculate average moves for winning games
+      const wins = movementData.filter(g => g.result === 'WIN');
+      if (wins.length > 0) {
+        const totalMoves = wins.reduce((sum, g) => sum + (g.moves || 0), 0);
+        movement.avg_moves_win = Math.round(totalMoves / wins.length);
+      }
     }
 
-    // 4. Login Trends (Last 7 days)
+    // 5. Login Trends (Last 7 days) - Fetch login history
     const sevenDaysAgo = new Date();
     sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
 
-    const { data: loginHistory } = await supabase
+    const { data: loginHistory, error: loginError } = await supabase
       .from('login_history')
       .select('login_time')
       .gte('login_time', sevenDaysAgo.toISOString());
 
-    const loginsByDay = loginHistory.reduce((acc, curr) => {
-      const date = new Date(curr.login_time).toLocaleDateString();
-      acc[date] = (acc[date] || 0) + 1;
-      return acc;
-    }, {});
+    // Handle case where login_history table might not exist or be empty
+    let loginsByDay = {};
+    if (!loginError && loginHistory) {
+      loginsByDay = loginHistory.reduce((acc, curr) => {
+        const date = new Date(curr.login_time).toLocaleDateString();
+        acc[date] = (acc[date] || 0) + 1;
+        return acc;
+      }, {});
+    }
 
+    // Send response with all analytics
     res.json({
       overview: {
-        totalUsers,
-        totalGames,
+        totalUsers: totalUsers || 0,
+        totalGames: totalGames || 0,
         activeRegions: Object.keys(regions).length
       },
       regions,
@@ -86,7 +110,7 @@ router.get('/analytics', authenticateAdmin, async (req, res) => {
 
   } catch (err) {
     console.error('Analytics Error:', err);
-    res.status(500).json({ error: 'Failed to fetch analytics' });
+    res.status(500).json({ error: 'Failed to fetch analytics', details: err.message });
   }
 });
 

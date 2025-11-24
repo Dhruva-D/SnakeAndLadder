@@ -54,7 +54,7 @@ const AdminDashboard = () => {
           <div className="stat-icon">👥</div>
           <div className="stat-info">
             <h3>Total Users</h3>
-            <p className="stat-number">{overview.totalUsers}</p>
+            <p className="stat-number">{overview.totalUsers || 0}</p>
           </div>
         </div>
 
@@ -62,7 +62,7 @@ const AdminDashboard = () => {
           <div className="stat-icon">🎮</div>
           <div className="stat-info">
             <h3>Games Played</h3>
-            <p className="stat-number">{overview.totalGames}</p>
+            <p className="stat-number">{overview.totalGames || 0}</p>
           </div>
         </div>
 
@@ -70,7 +70,7 @@ const AdminDashboard = () => {
           <div className="stat-icon">🌍</div>
           <div className="stat-info">
             <h3>Active Regions</h3>
-            <p className="stat-number">{overview.activeRegions}</p>
+            <p className="stat-number">{overview.activeRegions || 0}</p>
           </div>
         </div>
 
@@ -86,18 +86,22 @@ const AdminDashboard = () => {
         <div className="dashboard-section region-section">
           <h2>🌍 Regional Distribution</h2>
           <div className="region-list">
-            {Object.entries(regions).map(([region, count]) => (
-              <div key={region} className="region-item">
-                <span className="region-name">{region}</span>
-                <div className="region-bar-container">
-                  <div
-                    className="region-bar"
-                    style={{ width: `${(count / overview.totalUsers) * 100}%` }}
-                  ></div>
+            {Object.keys(regions).length > 0 ? (
+              Object.entries(regions).map(([region, count]) => (
+                <div key={region} className="region-item">
+                  <span className="region-name">{region}</span>
+                  <div className="region-bar-container">
+                    <div
+                      className="region-bar"
+                      style={{ width: `${(count / Math.max(overview.totalUsers, 1)) * 100}%` }}
+                    ></div>
+                  </div>
+                  <span className="region-count">{count}</span>
                 </div>
-                <span className="region-count">{count}</span>
-              </div>
-            ))}
+              ))
+            ) : (
+              <p className="no-data">No regional data available yet</p>
+            )}
           </div>
         </div>
 
@@ -107,12 +111,12 @@ const AdminDashboard = () => {
             <div className="movement-item snake">
               <span className="movement-icon">🐍</span>
               <span className="movement-label">Snakes Hit</span>
-              <span className="movement-value">{movement.total_snakes}</span>
+              <span className="movement-value">{movement.total_snakes || 0}</span>
             </div>
             <div className="movement-item ladder">
               <span className="movement-icon">🪜</span>
               <span className="movement-label">Ladders Climbed</span>
-              <span className="movement-value">{movement.total_ladders}</span>
+              <span className="movement-value">{movement.total_ladders || 0}</span>
             </div>
           </div>
         </div>

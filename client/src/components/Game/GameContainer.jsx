@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useGame } from '../../context/GameContext';
 import { useGameLogic } from '../../hooks/useGameLogic';
@@ -24,19 +24,29 @@ const GameContainer = () => {
     resetGame,
   } = useGame();
 
-  const { rollDice, makeMove, snakeInfo, setSnakeInfo } = useGameLogic();
-
   const [showIntroModal, setShowIntroModal] = useState(true);
   const [showSnakeModal, setShowSnakeModal] = useState(false);
   const [diceRolling, setDiceRolling] = useState(false);
   const [p1DiceValue, setP1DiceValue] = useState(1);
   const [p2DiceValue, setP2DiceValue] = useState(1);
 
-  // Analytics State
+  // Analytics State - Player 1 is ALWAYS the logged-in user
   const [startTime, setStartTime] = useState(null);
-  const [moveCount, setMoveCount] = useState(0);
-  const [snakesHit, setSnakesHit] = useState(0);
-  const [laddersClimbed, setLaddersClimbed] = useState(0);
+  const [moveCount, setMoveCount] = useState(0); // Only track Player 1 (logged-in user)
+  const [snakesHit, setSnakesHit] = useState(0); // Only track Player 1
+  const [laddersClimbed, setLaddersClimbed] = useState(0); // Only track Player 1
+
+  // Track if game was properly completed (not quit/refreshed)
+  const gameCompletedRef = useRef(false);
+
+  // Callback to track ladder climbs for Player 1 only
+  const handleLadderClimb = () => {
+    if (currentTurn === 1) {
+      setLaddersClimbed(prev => prev + 1);
+    }
+  };
+
+  const { rollDice, makeMove, snakeInfo, setSnakeInfo } = useGameLogic(handleLadderClimb);
 
   useEffect(() => {
     // Check if user is authenticated
@@ -50,25 +60,37 @@ const GameContainer = () => {
   useEffect(() => {
     if (snakeInfo) {
       setShowSnakeModal(true);
-      setSnakesHit(prev => prev + 1);
+      // Only track snakes for Player 1 (logged-in user)
+      if (currentTurn === 1) {
+        setSnakesHit(prev => prev + 1);
+      }
     }
-  }, [snakeInfo]);
+  }, [snakeInfo, currentTurn]);
 
   useEffect(() => {
     if (winner) {
+      gameCompletedRef.current = true;
       const endTime = Date.now();
       const durationSeconds = Math.floor((endTime - startTime) / 1000);
 
-      // Save Game Result
+      // Player 1 is always the logged-in user
+      const didWin = winner === player1;
+
+      // Save Game Result only if game completed normally
       const saveGame = async () => {
-        await gameService.recordGame({
-          opponent_name: winner === player1 ? player2 : player1,
-          result: winner === player1 ? 'WIN' : 'LOSS',
-          moves: moveCount,
-          duration_seconds: durationSeconds,
-          snakes_hit: snakesHit,
-          ladders_climbed: laddersClimbed
-        });
+        try {
+          await gameService.recordGame({
+            opponent_name: player2, // Player 2 is always the opponent
+            result: didWin ? 'WIN' : 'LOSS',
+            moves: moveCount,
+            duration_seconds: durationSeconds,
+            snakes_hit: snakesHit,
+            ladders_climbed: laddersClimbed
+          });
+          console.log('Game stats saved successfully');
+        } catch (error) {
+          console.error('Failed to save game stats:', error);
+        }
       };
 
       saveGame();
@@ -77,15 +99,33 @@ const GameContainer = () => {
         alert(`🎉 Congratulations ${winner}! You won the game! 🎉`);
       }, 500);
     }
-  }, [winner]);
+  }, [winner, startTime, player1, player2, moveCount, snakesHit, laddersClimbed]);
+
+  // Prevent saving if user refreshes or quits before game ends
+  useEffect(() => {
+    const handleBeforeUnload = (e) => {
+      if (gameStarted && !gameCompletedRef.current) {
+        // Game was in progress but not completed - don't save
+        console.log('Game quit before completion - stats not saved');
+      }
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+
+    return () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+    };
+  }, [gameStarted]);
 
   const handleStartGame = (p1Name, p2Name) => {
     startGame(p1Name, p2Name);
     setShowIntroModal(false);
     setStartTime(Date.now());
+    // Reset all analytics
     setMoveCount(0);
     setSnakesHit(0);
     setLaddersClimbed(0);
+    gameCompletedRef.current = false;
   };
 
   const handleDiceRoll = () => {
@@ -94,6 +134,7 @@ const GameContainer = () => {
     setDiceRolling(true);
     const rolledValue = rollDice();
 
+    // Only track moves for Player 1 (logged-in user)
     if (currentTurn === 1) {
       setMoveCount(prev => prev + 1);
     }
@@ -112,11 +153,17 @@ const GameContainer = () => {
 
   const handleResetGame = () => {
     if (window.confirm('Are you sure you want to restart the game?')) {
+      // Mark as not completed if resetting mid-game
+      gameCompletedRef.current = false;
       resetGame();
       setShowIntroModal(true);
       setStartTime(null);
       setP1DiceValue(1);
       setP2DiceValue(1);
+      // Reset analytics
+      setMoveCount(0);
+      setSnakesHit(0);
+      setLaddersClimbed(0);
     }
   };
 
@@ -158,11 +205,11 @@ const GameContainer = () => {
       {/* Bottom Dock */}
       {gameStarted && (
         <div className="bottom-dock">
-          {/* Player 1 Card */}
+          {/* Player 1 Card (Always the logged-in user) */}
           <div className={`player-card player1 ${currentTurn === 1 ? 'active' : ''}`}>
             <div className="player-avatar">👤</div>
             <div className="player-info">
-              <span className="player-name">{player1}</span>
+              <span className="player-name">{player1} (You)</span>
               <span className="player-pos">Pos: {p1sum}</span>
             </div>
           </div>
@@ -191,7 +238,7 @@ const GameContainer = () => {
             />
           </div>
 
-          {/* Player 2 Card */}
+          {/* Player 2 Card (Always the opponent) */}
           <div className={`player-card player2 ${currentTurn === 2 ? 'active' : ''}`}>
             <div className="player-avatar">🤖</div>
             <div className="player-info">

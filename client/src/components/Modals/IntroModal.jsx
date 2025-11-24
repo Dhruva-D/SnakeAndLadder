@@ -1,16 +1,26 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import authService from '../../services/authService';
 import './IntroModal.css';
 
 const IntroModal = ({ isOpen, onSubmit }) => {
   const [player1Name, setPlayer1Name] = useState('');
   const [player2Name, setPlayer2Name] = useState('');
 
+  useEffect(() => {
+    // Auto-fill Player 1 with logged-in user's username
+    const currentUser = authService.getCurrentUser();
+    if (currentUser) {
+      setPlayer1Name(currentUser.username.toUpperCase());
+    }
+  }, []);
+
   const handleSubmit = () => {
-    if (!player1Name.trim() || !player2Name.trim()) {
-      alert('Please enter both Player Names');
+    if (!player2Name.trim()) {
+      alert('Please enter Opponent Name (Player 2)');
       return;
     }
-    onSubmit(player1Name.toUpperCase(), player2Name.toUpperCase());
+    // Player 1 is always the logged-in user
+    onSubmit(player1Name, player2Name.toUpperCase());
   };
 
   if (!isOpen) return null;
@@ -19,27 +29,36 @@ const IntroModal = ({ isOpen, onSubmit }) => {
     <div className="modal-overlay">
       <div className="modal-content intro-modal">
         <div className="modal-header">
-          <h3 className="modal-title">Please Enter Player Names to Start the Game</h3>
+          <h3 className="modal-title">Start Your Game</h3>
         </div>
         <div className="modal-body">
-          <label htmlFor="player1">Player 1:</label>
+          <label htmlFor="player1">You (Player 1):</label>
           <input
             type="text"
-            className="form-control"
+            className="form-control player1-input"
             id="player1"
-            placeholder="Enter player 1 name"
             value={player1Name}
-            onChange={(e) => setPlayer1Name(e.target.value.toUpperCase())}
+            disabled
+            style={{
+              backgroundColor: '#1f1e1e',
+              color: '#F6D636',
+              cursor: 'not-allowed',
+              fontWeight: 'bold',
+              fontSize: '20px',
+              opacity: 1,
+              border: '2px solid #F6D636'
+            }}
           />
           <br />
-          <label htmlFor="player2">Player 2:</label>
+          <label htmlFor="player2">Opponent (Player 2):</label>
           <input
             type="text"
             className="form-control"
             id="player2"
-            placeholder="Enter player 2 name"
+            placeholder="Enter opponent name"
             value={player2Name}
             onChange={(e) => setPlayer2Name(e.target.value.toUpperCase())}
+            autoFocus
           />
           <br /><br />
           <p className="intro-text">
@@ -53,7 +72,7 @@ const IntroModal = ({ isOpen, onSubmit }) => {
         </div>
         <div className="modal-footer">
           <button type="button" className="btn btn-submit" onClick={handleSubmit}>
-            Submit
+            Start Game
           </button>
         </div>
       </div>
