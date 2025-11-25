@@ -49,34 +49,63 @@
   background: transparent;
 }
 
-.modal-body label {
+.input-group {
+  margin-bottom: 1.5rem;
+}
+
+.input-group label {
   color: #F6D636;
   font-size: 1.1rem;
+  font-weight: 600;
   margin-bottom: 0.5rem;
   display: block;
 }
 
-.modal-body .form-control {
-  background-color: rgba(31, 30, 30, 1);
-  color: wheat;
-  font-size: 19px;
-  border: 1px solid #444;
-  padding: 0.75rem;
+.modal-input {
   width: 100%;
+  padding: 0.75rem 1rem;
+  font-size: 20px;
+  font-weight: bold;
+  background-color: #1f1e1e;
+  border: 2px solid #444;
   border-radius: 4px;
+  color: wheat;
+  transition: border-color 0.3s;
+  box-sizing: border-box;
 }
 
-.modal-body .form-control:focus {
+.modal-input:focus {
   outline: none;
   border-color: #F6D636;
 }
 
+.player1-input {
+  color: #F6D636 !important;
+  border-color: #F6D636 !important;
+  cursor: not-allowed;
+  opacity: 1;
+}
+
+.player2-input::placeholder {
+  color: #666;
+  font-weight: normal;
+}
+
 .intro-text {
-  padding: 20px;
+  padding: 1.5rem;
   background-color: rgba(31, 30, 30, 1);
   color: #F6D636;
   border-radius: 4px;
   line-height: 1.6;
+  margin-top: 1rem;
+}
+
+.intro-text p {
+  margin: 0 0 1rem 0;
+}
+
+.intro-text p:last-child {
+  margin-bottom: 0;
 }
 
 .modal-footer {
