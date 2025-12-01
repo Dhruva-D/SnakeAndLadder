@@ -3,6 +3,7 @@ import { useGame } from '../context/GameContext';
 import { useAudio } from './useAudio';
 import snakesData from '../data/snakesData.json';
 import laddersData from '../data/laddersData.json';
+import quizData from '../data/quizData.json';
 
 export const useGameLogic = (onLadderClimb) => {
   const {
@@ -26,7 +27,8 @@ export const useGameLogic = (onLadderClimb) => {
   const { playSound, playCustomSound } = useAudio();
   const [snakeInfo, setSnakeInfo] = useState(null);
   const [showQuiz, setShowQuiz] = useState(false);
-  const [quizData, setQuizData] = useState(null);
+  const [quizQuestions, setQuizQuestions] = useState(null);
+  const [currentSnakeName, setCurrentSnakeName] = useState('');
 
   const rollDice = useCallback(() => {
     playSound('dice');
@@ -66,6 +68,7 @@ export const useGameLogic = (onLadderClimb) => {
           description: `${playerName} - ${snakePos.description}`,
           images: snakePos.images,
           thumbnails: snakePos.thumbnails,
+          quizIndex: snakePos.quizIndex,
         },
       };
     }
@@ -133,7 +136,9 @@ export const useGameLogic = (onLadderClimb) => {
     setSnakeInfo,
     showQuiz,
     setShowQuiz,
-    quizData,
-    setQuizData,
+    quizQuestions,
+    setQuizQuestions,
+    currentSnakeName,
+    setCurrentSnakeName,
   };
 };

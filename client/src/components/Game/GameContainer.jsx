@@ -8,6 +8,8 @@ import Board from './Board';
 import Dice from './Dice';
 import IntroModal from '../Modals/IntroModal';
 import SnakeInfoModal from '../Modals/SnakeInfoModal';
+import SnakeQuizModal from '../Modals/SnakeQuizModal';
+import quizData from '../../data/quizData.json';
 import './GameContainer.css';
 
 const GameContainer = () => {
@@ -26,6 +28,9 @@ const GameContainer = () => {
 
   const [showIntroModal, setShowIntroModal] = useState(true);
   const [showSnakeModal, setShowSnakeModal] = useState(false);
+  const [showQuizModal, setShowQuizModal] = useState(false);
+  const [currentQuizQuestions, setCurrentQuizQuestions] = useState(null);
+  const [currentSnakeName, setCurrentSnakeName] = useState('');
   const [diceRolling, setDiceRolling] = useState(false);
   const [p1DiceValue, setP1DiceValue] = useState(1);
   const [p2DiceValue, setP2DiceValue] = useState(1);
@@ -60,6 +65,8 @@ const GameContainer = () => {
   useEffect(() => {
     if (snakeInfo) {
       setShowSnakeModal(true);
+      // Store snake name and quiz index for later
+      setCurrentSnakeName(snakeInfo.name);
       // Only track snakes for Player 1 (logged-in user)
       if (currentTurn === 1) {
         setSnakesHit(prev => prev + 1);
@@ -179,7 +186,26 @@ const GameContainer = () => {
         snakeInfo={snakeInfo}
         onClose={() => {
           setShowSnakeModal(false);
+          // After closing snake info modal, show quiz if available
+          if (snakeInfo && snakeInfo.quizIndex) {
+            const questions = quizData[snakeInfo.quizIndex];
+            if (questions && questions.length > 0) {
+              setCurrentQuizQuestions(questions);
+              setShowQuizModal(true);
+            }
+          }
           setSnakeInfo(null);
+        }}
+      />
+
+      <SnakeQuizModal
+        isOpen={showQuizModal}
+        snakeName={currentSnakeName}
+        questions={currentQuizQuestions}
+        onClose={() => {
+          setShowQuizModal(false);
+          setCurrentQuizQuestions(null);
+          setCurrentSnakeName('');
         }}
       />
 
