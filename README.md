@@ -75,7 +75,20 @@ npm install
 
 ### 3. Environment Configuration
 
-The `.env` file is already provided in the `server` folder with all necessary configurations.
+Copy the example environment file and configure it with your Supabase credentials:
+
+```bash
+cd server
+cp .env.example .env
+```
+
+Then edit the `.env` file with your actual Supabase credentials:
+- `SUPABASE_URL` - Your Supabase project URL
+- `SUPABASE_ANON_KEY` - Your Supabase anonymous key
+- `SUPABASE_SERVICE_ROLE_KEY` - Your Supabase service role key
+- `JWT_SECRET` - A secure secret for JWT token generation (change the default in production)
+
+**Important:** The server will run on port 5555 by default (as configured in `.env`). The client expects the server on this port.
 
 **Note:** The `.env` file contains sensitive credentials. Keep it secure and do not commit it to version control.
 
@@ -255,7 +268,8 @@ taskkill /PID <process_id> /F
 #### Cannot connect to backend
 - ✅ Ensure backend server is running on port 5555
 - ✅ Check console for any backend errors
-- ✅ Verify `.env` file exists in server folder
+- ✅ Verify `.env` file exists in server folder (copy from `.env.example` if missing)
+- ✅ Make sure PORT=5555 is set in your `.env` file
 
 #### Login not working
 ```bash
@@ -328,11 +342,12 @@ To make a user admin, update the database directly or contact the database admin
 
 ## ⚠️ Important Notes
 
-1. **Database** - Already configured in `.env` file
-2. **Tables** - All database tables are already set up
-3. **Authentication** - Uses JWT tokens (expires after session)
-4. **Stats** - Only tracks logged-in user's data
-5. **Security** - Keep `.env` file secure and never commit to Git
+1. **Environment Setup** - Copy `.env.example` to `.env` and add your Supabase credentials
+2. **Database** - Configured through Supabase credentials in `.env` file
+3. **Tables** - All database tables are already set up
+4. **Authentication** - Uses JWT tokens (expires after session)
+5. **Stats** - Only tracks logged-in user's data
+6. **Security** - Keep `.env` file secure and never commit to Git
 
 ## 📝 Development Notes
 
@@ -345,7 +360,8 @@ To make a user admin, update the database directly or contact the database admin
 ### Main Files
 - **client/src/App.js** - Main React app with routing
 - **server/index.js** - Express server entry point
-- **server/.env** - Environment configuration (keep secure!)
+- **server/.env.example** - Environment configuration template (copy to `.env`)
+- **server/.env** - Your local environment configuration (keep secure!)
 
 ## 🚀 Deployment
 
