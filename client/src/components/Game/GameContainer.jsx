@@ -9,6 +9,7 @@ import Dice from './Dice';
 import IntroModal from '../Modals/IntroModal';
 import SnakeInfoModal from '../Modals/SnakeInfoModal';
 import SnakeQuizModal from '../Modals/SnakeQuizModal';
+import ResumeExitModal from '../Modals/ResumeExitModal';
 import quizData from '../../data/quizData.json';
 import './GameContainer.css';
 
@@ -25,15 +26,17 @@ const GameContainer = () => {
     startGame,
     resetGame,
   } = useGame();
-
   const [showIntroModal, setShowIntroModal] = useState(true);
   const [showSnakeModal, setShowSnakeModal] = useState(false);
   const [showQuizModal, setShowQuizModal] = useState(false);
+  const [showResumeExitModal, setShowResumeExitModal] = useState(false);
   const [currentQuizQuestions, setCurrentQuizQuestions] = useState(null);
   const [currentSnakeName, setCurrentSnakeName] = useState('');
   const [diceRolling, setDiceRolling] = useState(false);
   const [p1DiceValue, setP1DiceValue] = useState(1);
   const [p2DiceValue, setP2DiceValue] = useState(1);
+  const [gameExited, setGameExited] = useState(false);
+  const [gamePaused, setGamePaused] = useState(false);
 
   // Analytics State - Player 1 is ALWAYS the logged-in user
   const [startTime, setStartTime] = useState(null);
@@ -108,21 +111,33 @@ const GameContainer = () => {
     }
   }, [winner, startTime, player1, player2, moveCount, snakesHit, laddersClimbed]);
 
-  // Prevent saving if user refreshes or quits before game ends
+  // Handle page visibility changes (tab switch, minimize)
   useEffect(() => {
     const handleBeforeUnload = (e) => {
-      if (gameStarted && !gameCompletedRef.current) {
-        // Game was in progress but not completed - don't save
-        console.log('Game quit before completion - stats not saved');
+      if (gameStarted && !gameCompletedRef.current && !winner && !gameExited) {
+        // User is trying to refresh or close - show browser warning
+        e.preventDefault();
+        e.returnValue = 'Game in progress. Are you sure you want to leave?';
+        return e.returnValue;
+      }
+    };
+
+    const handleVisibilityChange = () => {
+      if (document.hidden && gameStarted && !winner && !gameExited && !gamePaused) {
+        // Tab switched or minimized - pause game and show modal
+        setGamePaused(true);
+        setShowResumeExitModal(true);
       }
     };
 
     window.addEventListener('beforeunload', handleBeforeUnload);
+    document.addEventListener('visibilitychange', handleVisibilityChange);
 
     return () => {
       window.removeEventListener('beforeunload', handleBeforeUnload);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
     };
-  }, [gameStarted]);
+  }, [gameStarted, winner, gameExited, gamePaused]);
 
   const handleStartGame = (p1Name, p2Name) => {
     startGame(p1Name, p2Name);
@@ -136,7 +151,7 @@ const GameContainer = () => {
   };
 
   const handleDiceRoll = () => {
-    if (diceRolling || winner) return;
+    if (diceRolling || winner || gamePaused) return;
 
     setDiceRolling(true);
     const rolledValue = rollDice();
@@ -158,8 +173,29 @@ const GameContainer = () => {
     }, 1000);
   };
 
-  const handleResetGame = () => {
+  const handleResetGame = async () => {
     if (window.confirm('Are you sure you want to exit the game?')) {
+      // If game was in progress and not won, record as a loss
+      if (gameStarted && !winner && !gameExited) {
+        setGameExited(true);
+        const endTime = Date.now();
+        const durationSeconds = Math.floor((endTime - startTime) / 1000);
+        
+        try {
+          await gameService.recordGame({
+            opponent_name: player2,
+            result: 'LOSS',
+            moves: moveCount,
+            duration_seconds: durationSeconds,
+            snakes_hit: snakesHit,
+            ladders_climbed: laddersClimbed
+          });
+          console.log('Game exit recorded as loss');
+        } catch (error) {
+          console.error('Failed to record game exit:', error);
+        }
+      }
+      
       // Mark as not completed if exiting mid-game
       gameCompletedRef.current = false;
       resetGame();
@@ -167,6 +203,8 @@ const GameContainer = () => {
       setStartTime(null);
       setP1DiceValue(1);
       setP2DiceValue(1);
+      setGameExited(false);
+      setGamePaused(false);
       // Reset analytics
       setMoveCount(0);
       setSnakesHit(0);
@@ -178,17 +216,13 @@ const GameContainer = () => {
 
   return (
     <div className="game-container" style={{ backgroundImage: 'url(/bg/gamebg.jpg)' }}>
-      <IntroModal
-        isOpen={showIntroModal}
-        onSubmit={handleStartGame}
-      />
+      <IntroModal isOpen={showIntroModal} onSubmit={handleStartGame} />
 
       <SnakeInfoModal
         isOpen={showSnakeModal}
         snakeInfo={snakeInfo}
         onClose={() => {
           setShowSnakeModal(false);
-          // After closing snake info modal, show quiz if available
           if (snakeInfo && snakeInfo.quizIndex) {
             const questions = quizData[snakeInfo.quizIndex];
             if (questions && questions.length > 0) {
@@ -211,29 +245,60 @@ const GameContainer = () => {
         }}
       />
 
-      {/* Floating Exit Button */}
+      <ResumeExitModal
+        isOpen={showResumeExitModal}
+        onResume={() => {
+          setShowResumeExitModal(false);
+          setGamePaused(false);
+        }}
+        onExit={async () => {
+          if (gameStarted && !winner && !gameExited) {
+            setGameExited(true);
+            const endTime = Date.now();
+            const durationSeconds = Math.floor((endTime - startTime) / 1000);
+            try {
+              await gameService.recordGame({
+                opponent_name: player2,
+                result: 'LOSS',
+                moves: moveCount,
+                duration_seconds: durationSeconds,
+                snakes_hit: snakesHit,
+                ladders_climbed: laddersClimbed,
+              });
+            } catch (error) {
+              console.error('Failed to record game exit:', error);
+            }
+          }
+          setShowResumeExitModal(false);
+          gameCompletedRef.current = false;
+          resetGame();
+          setShowIntroModal(true);
+          setStartTime(null);
+          setP1DiceValue(1);
+          setP2DiceValue(1);
+          setGameExited(false);
+          setGamePaused(false);
+          setMoveCount(0);
+          setSnakesHit(0);
+          setLaddersClimbed(0);
+          navigate('/game1');
+        }}
+      />
+
       {gameStarted && (
         <button className="floating-restart-btn" onClick={handleResetGame}>
           🚪 Exit Game
         </button>
       )}
 
-      {/* Winner Message */}
-      {winner && (
-        <div className="winner-banner">
-          🎉 {winner} Wins! 🎉
-        </div>
-      )}
+      {winner && <div className="winner-banner">🎉 {winner} Wins! 🎉</div>}
 
-      {/* Main Board Area */}
       <div className="game-board-section">
         <Board p1Position={p1sum} p2Position={p2sum} />
       </div>
 
-      {/* Bottom Dock */}
       {gameStarted && (
         <div className="bottom-dock">
-          {/* Player 1 Card (Always the logged-in user) */}
           <div className={`player-card player1 ${currentTurn === 1 ? 'active' : ''}`}>
             <div className="player-avatar">👤</div>
             <div className="player-info">
@@ -242,31 +307,29 @@ const GameContainer = () => {
             </div>
           </div>
 
-          {/* Dice Section (Center) */}
           <div className="dock-dice-section">
             <Dice
               player={1}
               value={p1DiceValue}
               rolling={diceRolling && currentTurn === 1}
-              isActive={currentTurn === 1 && !winner}
+              isActive={currentTurn === 1 && !winner && !gamePaused}
               onRoll={handleDiceRoll}
-              disabled={currentTurn !== 1 || diceRolling || winner}
-              showArrow={currentTurn === 1 && !winner}
+              disabled={currentTurn !== 1 || diceRolling || winner || gamePaused}
+              showArrow={currentTurn === 1 && !winner && !gamePaused}
               color="yellow"
             />
             <Dice
               player={2}
               value={p2DiceValue}
               rolling={diceRolling && currentTurn === 2}
-              isActive={currentTurn === 2 && !winner}
+              isActive={currentTurn === 2 && !winner && !gamePaused}
               onRoll={handleDiceRoll}
-              disabled={currentTurn !== 2 || diceRolling || winner}
-              showArrow={currentTurn === 2 && !winner}
+              disabled={currentTurn !== 2 || diceRolling || winner || gamePaused}
+              showArrow={currentTurn === 2 && !winner && !gamePaused}
               color="red"
             />
           </div>
 
-          {/* Player 2 Card (Always the opponent) */}
           <div className={`player-card player2 ${currentTurn === 2 ? 'active' : ''}`}>
             <div className="player-avatar">🤖</div>
             <div className="player-info">

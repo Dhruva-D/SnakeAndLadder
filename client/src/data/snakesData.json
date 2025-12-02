@@ -5,13 +5,11 @@
     "description": "You have been bitten by a Saw Scaled Viper. This species is responsible for more snakebite deaths than all other snake species combined. Saw-scaled vipers are found in the Indian mainland, Pakistan, and Southeast Asia.",
     "images": [
       "bg/snakes/98a.jpg",
-      "bg/snakes/98b.jpg",
-      "bg/snakes/98c.jpg"
+      "bg/snakes/98b.jpg"
     ],
     "thumbnails": [
       "bg/snakes/98an.jpg",
-      "bg/snakes/98bn.jpg",
-      "bg/snakes/98cn.jpg"
+      "bg/snakes/98bn.jpg"
     ],
     "sound": "sound/open-hat-snake-100639.mp3",
     "quizIndex": 9
