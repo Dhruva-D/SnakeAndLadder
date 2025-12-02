@@ -77,7 +77,7 @@
 
 .right-dice {
   animation: bounce 2s infinite 0.3s;
-  right: -170px;
+  right: -185px;
 }
 
 @keyframes bounce {
