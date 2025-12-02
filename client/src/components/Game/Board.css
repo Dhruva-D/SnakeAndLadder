@@ -12,8 +12,8 @@
   /* Use aspect-ratio to maintain the board's shape based on the image dimensions (800x730) */
   aspect-ratio: 800 / 730;
   width: 100%;
-  max-width: 800px;
-  /* Cap at original size */
+  max-width: 1000px;
+  /* Increased max-width for larger board */
   max-height: 100%;
   /* Ensure it fits vertically */
   grid-template-columns: repeat(10, 1fr);

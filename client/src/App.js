@@ -12,7 +12,7 @@ import './App.css';
 // Layout wrapper to conditionally show navbar
 function Layout({ children }) {
   const location = useLocation();
-  const hideNavbarRoutes = ['/', '/signup'];
+  const hideNavbarRoutes = ['/', '/signup', '/game'];
   const shouldShowNavbar = !hideNavbarRoutes.includes(location.pathname);
 
   return (
