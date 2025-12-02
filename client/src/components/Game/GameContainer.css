@@ -16,19 +16,19 @@
 .floating-restart-btn {
   position: fixed;
   top: 20px;
-  right: 20px;
+  right: 60px;
   z-index: 200;
-  background: rgba(13, 77, 77, 0.9);
+  background: radial-gradient(circle at 30% 30%, #ff3333, #cc0000);
   border: 2px solid #F6D636;
-  border-radius: 25px;
-  padding: 12px 24px;
+  border-radius: 20px;
+  padding: 8px 16px;
   color: #F6D636;
   font-weight: bold;
-  font-size: 1.1rem;
+  font-size: 0.95rem;
   cursor: pointer;
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
   transition: all 0.3s ease;
   backdrop-filter: blur(10px);
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);

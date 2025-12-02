@@ -4,6 +4,7 @@ import { GameProvider } from './context/GameContext';
 import Navbar from './components/Navbar/Navbar';
 import Login from './components/Auth/Login';
 import Signup from './components/Auth/Signup';
+import GameLanding from './components/Game/GameLanding';
 import GameContainer from './components/Game/GameContainer';
 import Profile from './components/Profile/Profile';
 import AdminDashboard from './components/Admin/AdminDashboard';
@@ -31,6 +32,7 @@ function App() {
           <Routes>
             <Route path="/" element={<Login />} />
             <Route path="/signup" element={<Signup />} />
+            <Route path="/game1" element={<GameLanding />} />
             <Route path="/game" element={<GameContainer />} />
             <Route path="/profile" element={<Profile />} />
             <Route path="/admin" element={<AdminDashboard />} />

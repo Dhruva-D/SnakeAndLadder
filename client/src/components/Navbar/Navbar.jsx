@@ -18,7 +18,7 @@ const Navbar = () => {
   return (
     <nav className="game-navbar">
       <div className="navbar-container">
-        <div className="navbar-brand" onClick={() => navigate('/game')} style={{ cursor: 'pointer' }}>
+        <div className="navbar-brand" onClick={() => navigate('/game1')} style={{ cursor: 'pointer' }}>
           <span className="brand-icon">🎲</span>
           <span className="brand-text">Snake & Ladder</span>
         </div>

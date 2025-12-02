@@ -28,7 +28,7 @@ const Login = () => {
 
     try {
       await authService.login(email, password);
-      navigate('/game');
+      navigate('/game1');
     } catch (error) {
       alert(error.message);
     } finally {

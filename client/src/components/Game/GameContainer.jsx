@@ -159,8 +159,8 @@ const GameContainer = () => {
   };
 
   const handleResetGame = () => {
-    if (window.confirm('Are you sure you want to restart the game?')) {
-      // Mark as not completed if resetting mid-game
+    if (window.confirm('Are you sure you want to exit the game?')) {
+      // Mark as not completed if exiting mid-game
       gameCompletedRef.current = false;
       resetGame();
       setShowIntroModal(true);
@@ -171,6 +171,8 @@ const GameContainer = () => {
       setMoveCount(0);
       setSnakesHit(0);
       setLaddersClimbed(0);
+      // Redirect to game1 page
+      navigate('/game1');
     }
   };
 
@@ -209,10 +211,10 @@ const GameContainer = () => {
         }}
       />
 
-      {/* Floating Restart Button */}
+      {/* Floating Exit Button */}
       {gameStarted && (
         <button className="floating-restart-btn" onClick={handleResetGame}>
-          🔄 Restart
+          🚪 Exit Game
         </button>
       )}
 
